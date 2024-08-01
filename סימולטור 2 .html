@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Simulator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background: url('/mnt/data/logo.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+        form {
+            max-width: 600px;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #34495e;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .logo-upload {
+            margin-bottom: 20px;
+        }
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .results-table th, .results-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        .results-table th {
+            background-color: #3498db;
+            color: white;
+        }
+        .signature {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="logo-upload">
+        <label for="logo">Upload Logo:</label>
+        <input type="file" id="logo" name="logo">
+    </div>
+
+    <form id="investment-form">
+        <div class="form-group">
+            <label for="lumpSum">סכום חד פעמי:</label>
+            <input type="number" id="lumpSum" name="lumpSum" required>
+        </div>
+        <div class="form-group">
+            <label for="monthlyDeposit">הפקדה שוטפת:</label>
+            <input type="number" id="monthlyDeposit" name="monthlyDeposit" required>
+        </div>
+        <div class="form-group">
+            <label for="annualInterest">ריבית שנתית (%):</label>
+            <input type="number" id="annualInterest" name="annualInterest" step="0.01" required>
+        </div>
+        <div class="form-group">
+            <label for="years">מספר שנים:</label>
+            <input type="number" id="years" name="years" required>
+        </div>
+        <div class="form-group">
+            <label for="managementFeeSavings">דמי ניהול מצבירה (%):</label>
+            <input type="number" id="managementFeeSavings" name="managementFeeSavings" step="0.01" required>
+        </div>
+        <div class="form-group">
+            <label for="managementFeeDeposit">דמי ניהול מהפקדה (%):</label>
+            <input type="number" id="managementFeeDeposit" name="managementFeeDeposit" step="0.01" required>
+        </div>
+        <button type="submit">Calculate and Display</button>
+    </form>
+
+    <table class="results-table" id="results-table">
+        <thead>
+            <tr>
+                <th>Year</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody id="results-body">
+        </tbody>
+    </table>
+
+    <div class="signature">
+        <p>בברכה,<br>חיים דנינו - זיו סוכנות לביטוח</p>
+    </div>
+
+    <script>
+        document.getElementById('investment-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Collect form data
+            const formData = new FormData(event.target);
+
+            // Convert form data to variables
+            const lumpSum = parseFloat(formData.get('lumpSum'));
+            const monthlyDeposit = parseFloat(formData.get('monthlyDeposit'));
+            const annualInterest = parseFloat(formData.get('annualInterest')) / 100;
+            const years = parseInt(formData.get('years'));
+            const managementFeeSavings = parseFloat(formData.get('managementFeeSavings')) / 100;
+            const managementFeeDeposit = parseFloat(formData.get('managementFeeDeposit')) / 100;
+
+            // Calculate the investment over the years
+            let amount = lumpSum;
+            const results = [];
+
+            for (let year = 1; year <= years; year++) {
+                // Add annual interest and deduct management fees
+                amount += (amount * annualInterest);
+                amount -= (amount * managementFeeSavings);
+
+                // Add monthly deposits and deduct management fees
+                amount += (monthlyDeposit * 12);
+                amount -= (monthlyDeposit * 12 * managementFeeDeposit);
+
+                results.push({ year, amount: amount.toFixed(2) });
+            }
+
+            // Display results in the table
+            const resultsBody = document.getElementById('results-body');
+            resultsBody.innerHTML = '';
+
+            results.forEach(result => {
+                const row = document.createElement('tr');
+                const yearCell = document.createElement('td');
+                yearCell.textContent = result.year;
+                const amountCell = document.createElement('td');
+                amountCell.textContent = result.amount;
+                row.appendChild(yearCell);
+                row.appendChild(amountCell);
+                resultsBody.appendChild(row);
+            });
+
+            // Placeholder: simulate sending email
+            alert('Calculation done and displayed.');
+        });
+    </script>
+
+</body>
+</html>
